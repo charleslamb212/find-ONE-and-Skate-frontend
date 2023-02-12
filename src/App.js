@@ -11,6 +11,7 @@ export default function App() {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const marker = useRef(null);
+  const popup = useRef(null);
   const [showInfo, setShowInfo] = useState(false);
   const [lng, setLng] = useState(-122.2712);
   const [lat, setLat] = useState(37.8044);
@@ -40,19 +41,21 @@ export default function App() {
   }, [lat, lng, zoom]);
 
   useEffect(() => {
-    if (!map.current) 
-      return; // wait for map to initialize
-        map.current.on('click', (e) => { // add marker on click event
-          marker.current = new mapboxgl.Marker() // add marker
-            .setLngLat(e.lngLat) // set marker position
-            .addTo(map.current); // add marker to map
+    if (!map.current) return; // wait for map to initialize
+
+    map.current.on('click', (e) => { // add marker on click event
+      // if (marker.current) marker.current.remove(); // remove existing marker if present
+      
+      marker.current = new mapboxgl.Marker() // add marker
+        .setLngLat(e.lngLat) // set marker position
+        .addTo(map.current); // add marker to map
+      
+      // add popup to marker
+      popup.current = new mapboxgl.Popup({ closeOnClick: false })
+        .setLngLat(e.lngLat)
+        .setHTML("<h1>Info about this location</h1>")
+        .addTo(map.current);
     });
-  
-    // map.current.on('move', () => {
-    //   setLng(map.current.getCenter().lng.toFixed(4));
-    //   setLat(map.current.getCenter().lat.toFixed(4));
-    //   setZoom(map.current.getZoom().toFixed(2));
-    // });
   });
 
   return (
