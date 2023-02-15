@@ -17,3 +17,40 @@
   margin-top: 42px;
 }
 
+.navbar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background-color: #333;
+  color: white;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  transition: color 0.2s ease-in-out;
+}
+
+.navbar a:hover {
+  color: #ffc107;
+}
+
+.custom-modal {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 400px;
+  height: 400px;
+  padding: 30px;
+  border-radius: 4px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+  background-color: #fff;
+}
+
+

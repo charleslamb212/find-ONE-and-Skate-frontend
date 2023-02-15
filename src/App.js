@@ -6,6 +6,7 @@ import {
 
 import { useState, useEffect } from "react";
 import jwt_decode from "jwt-decode";
+import axios from "axios";
 
 // component imports
 import Home from "./components/pages/Home";
@@ -15,7 +16,10 @@ import Profile from "./components/pages/Profile";
 import Navbar from "./components/Navbar";
 import Welcome from "./components/pages/Welcome";
 
-export default function App() {
+axios.defaults.baseURL = "http://localhost:5000/api";
+axios.defaults.withCredentials = true;
+
+function App() {
   // the currently logged in user will be stored up here in state
   const [currentUser, setCurrentUser] = useState(null);
 
@@ -42,6 +46,19 @@ export default function App() {
     }
   };
 
+  const handleLogin = (username, password, closeLoginModal) => {
+    axios
+      .post("/auth/login", { username, password })
+      .then((response) => {
+        localStorage.setItem("jwt", response.data.token);
+        setCurrentUser(jwt_decode(response.data.token));
+        closeLoginModal();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
     <div>
       <Router>
@@ -50,14 +67,8 @@ export default function App() {
         </header>
         <div className="App">
           <Routes>
-            <Route 
-              path="/" 
-              element={<Home />} 
-            />
-            <Route 
-              path="/welcome"
-              element={<Welcome />}
-            />
+            <Route path="/" element={<Home />} />
+            <Route path="/welcome" element={<Welcome />} />
             <Route
               path="/register"
               element={
@@ -69,14 +80,8 @@ export default function App() {
             />
             <Route
               path="/login"
-              element={
-                <Login
-                  currentUser={currentUser}
-                  setCurrentUser={setCurrentUser}
-                />
-              }
+              element={<Login onLogin={handleLogin} currentUser={currentUser} />}
             />
-
             <Route
               path="/profile"
               element={
@@ -93,3 +98,5 @@ export default function App() {
     </div>
   );
 }
+
+export default App;

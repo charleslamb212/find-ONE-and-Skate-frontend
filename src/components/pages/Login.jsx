@@ -1,85 +1,78 @@
-import { useState } from 'react'
-import axios from 'axios'
-import jwt_decode from 'jwt-decode'
-import { Navigate } from 'react-router-dom'
-import Profile from './Profile'
+import { useState } from "react";
+import axios from "axios";
+import jwt_decode from 'jwt-decode';
 
-export default function Login(props) {
+const Login = ({ onClose, onLogin, setCurrentUser }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // for controlled form
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [message, setMessage] = useState('')
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}`, {
+        email,
+        password,
+      });
 
-  // submit will hit backend login endpoint
-  const handleSumbit = async e => {
-    try { 
-      e.preventDefault()
-      // post to backend with form submission
-      const requestBody = {
-        email: email,
-        password: password
-      }
+      // set the token in local storage
+      localStorage.setItem("jwt", response.data.token);
 
-      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/users/login`, requestBody)
-      
-      // destructure response
-      const { token } = response.data
+      // decode the token to get the user data
+      const decodedToken = jwt_decode(response.data.token);
 
-      // Save token to localStorage
-      localStorage.setItem('jwt', token);
+      // set the user data in App state
+      setCurrentUser(decodedToken);
 
-      // get user data from the token
-      const decoded = jwt_decode(token)
+      // call the onLogin function passed in as a prop
+      onLogin();
 
-      // set the current user in the top app state
-      props.setCurrentUser(decoded)
-      
-    } catch(error) {
-      // if the email/pass didn't match
-      if(error.response.status === 400) {
-        setMessage(error.response.data.msg)
+      // close the login modal
+      onClose();
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        setErrorMessage("Invalid email or password");
       } else {
-        // otherwise log the error for debug
-        console.log(error)
+        setErrorMessage("An unknown error occurred");
       }
     }
-  }
-
-  // Navigate to profile if user is logged in
-  if(props.currentUser) return <Navigate to='/profile' component={ Profile } currentUser={ props.currentUser } />
+  };
 
   return (
-    <div>
-      <h3>Login Form:</h3>
-
-      <p>{message}</p>
-
-      <form onSubmit={handleSumbit}>
-        <label htmlFor='email-input'>email:</label>
-
-        <input
-          id='email-input'
-          type='email'
-          placeholder='user@domain.com'
-          onChange={e => setEmail(e.target.value)}
-          value={email}
-        />
-
-        <label htmlFor='password-input'>password:</label>
-
-        <input 
-          id='password-input'
-          type='password'
-          placeholder='password'
-          onChange={e => setPassword(e.target.value)}
-        />
-
-        <input 
-          type='submit'
-          value='login'
-        />
+    <div className="login">
+      <h2>Log In</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            className="form-control"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            className="form-control"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        {errorMessage && (
+          <div className="alert alert-danger" role="alert">
+            {errorMessage}
+          </div>
+        )}
+        <button type="submit" className="btn btn-primary">
+          Log In
+        </button>
       </form>
     </div>
-  )
-}
+  );
+};
+
+export default Login;
