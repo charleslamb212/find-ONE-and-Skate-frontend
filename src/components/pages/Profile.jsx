@@ -8,8 +8,8 @@ export default function Profile(props) {
 
   
   return (
-    <div>
-      <h3>Profile Page:</h3>
+    <div className="profile">
+      <h3 className="PP">Profile Page:</h3>
     </div>
   )
 }

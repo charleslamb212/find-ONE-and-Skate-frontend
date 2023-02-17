@@ -232,8 +232,13 @@ form {
 
 #newDiv {
   color: white
-
 }
+
+.PP {
+  color: white;
+  font-size: 20px;
+}
+
 
 
 
